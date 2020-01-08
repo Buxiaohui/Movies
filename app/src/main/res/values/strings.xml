@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Test-Movies</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- movies -->
+    <string name="overview">Overview</string>
+    <string name="rate_movie">Rate movie</string>
+    <string name="story">Story</string>
+    <string name="cast">cast</string>
+</resources>

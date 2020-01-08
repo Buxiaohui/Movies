@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--for view tag-->
+    <item name="view_tag_first" type="id" />
+    <item name="view_tag_sec" type="id" />
+    <item name="view_tag_thd" type="id" />
+
+
+</resources>
