@@ -5,21 +5,29 @@ import org.jetbrains.annotations.NotNull;
 import com.buxiaohui.movies.R;
 import com.buxiaohui.movies.contract.BasePanelView;
 import com.buxiaohui.movies.movies.contract.MoviesContract;
+import com.buxiaohui.movies.movies.model.ActorModel;
+import com.buxiaohui.movies.movies.model.BannerImgMode;
 import com.buxiaohui.movies.movies.model.MovieBannerModel;
 import com.buxiaohui.movies.utils.UIUtils;
 import com.buxiaohui.movies.widgets.PullZoomScrollView;
 import com.google.android.material.tabs.TabLayout;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+
+import java.util.ArrayList;
 
 public class MoviesFragment extends BasePanelView implements MoviesContract.View {
     private View mRootView;
@@ -27,8 +35,11 @@ public class MoviesFragment extends BasePanelView implements MoviesContract.View
     private TextView mNameTv;
     private TextView mGenreTv;
 
-    private TabLayout mTabLayout;
-    private ViewPager mViewPager;
+    private TabLayout mDescTabLayout;
+    private ViewPager mDescViewPager;
+
+    private ViewPager mBannerViewPager;
+
     private PullZoomScrollView mPullZoomScrollView;
     private MoviesOverviewFragment mOverviewFragment;
     private MoviesRateFragment mRateFragment;
@@ -99,22 +110,121 @@ public class MoviesFragment extends BasePanelView implements MoviesContract.View
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         // find
+        mBannerViewPager = view.findViewById(R.id.banner_pager);
+
         mNameTv = view.findViewById(R.id.name);
         mGenreTv = view.findViewById(R.id.genre);
-        mPullZoomScrollView = view.findViewById(R.id.content_scrollview);
-        mPullZoomScrollView.setMaxHeight(UIUtils.dip2px(this.getContext(),400));
-        mPullZoomScrollView.setMinHeight(UIUtils.dip2px(this.getContext(),300));
-        mTabLayout = view.findViewById(R.id.tab_layout);
-        mViewPager = view.findViewById(R.id.tab_viewpager);
-        // set
-        mTabLayout.addTab(mTabLayout.newTab().setText(R.string.overview), true);
-        mTabLayout.addTab(mTabLayout.newTab().setText(R.string.rate_movie), false);
 
+        mPullZoomScrollView = view.findViewById(R.id.content_scrollview);
+        mPullZoomScrollView.setMaxHeight(UIUtils.dip2px(this.getContext(), 400));
+        mPullZoomScrollView.setMinHeight(UIUtils.dip2px(this.getContext(), 300));
+
+
+        mDescTabLayout = view.findViewById(R.id.tab_layout);
+        mDescViewPager = view.findViewById(R.id.tab_viewpager);
+
+        // set
+        initDescSection();
+        initBannerSection();
+        if (mPresenter != null) {
+            mPresenter.request();
+        }
+    }
+
+    private void initBannerSection() {
+        final ArrayList<BannerImgMode> bannerList = new ArrayList<>();
+        bannerList.add(new BannerImgMode());
+        bannerList.add(new BannerImgMode());
+        bannerList.add(new BannerImgMode());
+        bannerList.add(new BannerImgMode());
+        bannerList.add(new BannerImgMode());
+        bannerList.add(new BannerImgMode());
+        bannerList.add(new BannerImgMode());
+        mBannerViewPager.setOffscreenPageLimit(4);
+        mBannerViewPager.setPageTransformer(false, new ViewPager.PageTransformer() {
+            final float DEFAULT_MIN_SCALE = 0.65f;
+            float mMinScale = DEFAULT_MIN_SCALE;
+            final float DEFAULT_CENTER = 0.5f;
+
+            @Override
+            public void transformPage(@NonNull View view, float position) {
+
+                int pageWidth = view.getWidth();
+                int pageHeight = view.getHeight();
+
+                view.setPivotY(pageHeight / 2);
+                view.setPivotX(pageWidth / 2);
+                if (position < -1) { // [-Infinity,-1)
+                    // This page is way off-screen to the left.
+                    view.setScaleX(mMinScale);
+                    view.setScaleY(mMinScale);
+                    view.setPivotX(pageWidth);
+                } else if (position <= 1) { // [-1,1]
+                    // Modify the default slide transition to shrink the page as well
+                    if (position < 0) { //1-2:1[0,-1] ;2-1:1[-1,0]
+                        float scaleFactor = (1 + position) * (1 - mMinScale) + mMinScale;
+                        view.setScaleX(scaleFactor);
+                        view.setScaleY(scaleFactor);
+
+                        view.setPivotX(pageWidth * (DEFAULT_CENTER + (DEFAULT_CENTER * -position)));
+
+                    } else { //1-2:2[1,0] ;2-1:2[0,1]
+
+                        float scaleFactor = (1 - position) * (1 - mMinScale) + mMinScale;
+                        view.setScaleX(scaleFactor);
+                        view.setScaleY(scaleFactor);
+                        view.setPivotX(pageWidth * ((1 - position) * DEFAULT_CENTER));
+                    }
+
+
+                } else { // (1,+Infinity]
+                    view.setPivotX(0);
+                    view.setScaleX(mMinScale);
+                    view.setScaleY(mMinScale);
+
+                }
+            }
+        });
+        mBannerViewPager.setAdapter(new
+
+                                            PagerAdapter() {
+                                                @Override
+                                                public int getCount() {
+                                                    return bannerList.size(); // test
+                                                }
+
+                                                @Override
+                                                public boolean isViewFromObject(View arg0, Object arg1) {
+                                                    return arg0 == arg1;
+                                                }
+
+                                                @Override
+                                                public void destroyItem(View container, int position, Object object) {
+                                                    ((ViewPager) container).removeView((View) object);
+                                                }
+
+                                                @Override
+                                                public Object instantiateItem(View container, int position) {
+                                                    ImageView image = new ImageView(container.getContext());
+                                                    image.setImageResource(bannerList.get(position).getImgResId());
+                                                    image.setScaleType(ImageView.ScaleType.FIT_XY);
+                                                    ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(200, 200);
+                                                    image.setLayoutParams(layoutParams);
+                                                    ((ViewPager) container).addView(image);
+                                                    Log.d("instantiateItem", "position:" + position);
+                                                    return image;
+                                                }
+                                            });
+    }
+
+    private void initDescSection() {
+        mDescTabLayout.addTab(mDescTabLayout.newTab().setText(R.string.overview), true);
+        mDescTabLayout.addTab(mDescTabLayout.newTab().setText(R.string.rate_movie), false);
         mOverviewFragment = new MoviesOverviewFragment();
         mRateFragment = new MoviesRateFragment();
         Bundle bundle = new Bundle();
         bundle.putSerializable(ParamsKey.BASE_DATA, this.mPresenter.getData());
-        mViewPager.setAdapter(new FragmentPagerAdapter(getFragmentManager()) {
+        mDescViewPager.setAdapter(new FragmentPagerAdapter(getChildFragmentManager()) {
 
             @Override
             public int getCount() {
@@ -133,13 +243,10 @@ public class MoviesFragment extends BasePanelView implements MoviesContract.View
                 }
             }
         });
-        mTabLayout.setupWithViewPager(mViewPager);
+        mDescTabLayout.setupWithViewPager(mDescViewPager);
         // after setupWithViewPager
-        mTabLayout.getTabAt(0).setText(R.string.overview);
-        mTabLayout.getTabAt(1).setText(R.string.rate_movie);
-        if (mPresenter != null) {
-            mPresenter.request();
-        }
+        mDescTabLayout.getTabAt(0).setText(R.string.overview);
+        mDescTabLayout.getTabAt(1).setText(R.string.rate_movie);
     }
 
     @Override
