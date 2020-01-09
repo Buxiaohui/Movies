@@ -7,6 +7,7 @@ import com.buxiaohui.movies.movies.model.ActorModel;
 import com.buxiaohui.movies.movies.model.MovieBannerModel;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,11 +58,17 @@ public class MoviesOverviewFragment extends Fragment {
     }
 
     public void onSuccess(MovieBannerModel movieBannerModel) {
-
+        String story = movieBannerModel != null ? (TextUtils.isEmpty(movieBannerModel.getPlot()) ? ""
+                                                           : movieBannerModel.getPlot()) : "";
+        if (mStoryContentTv != null) {
+            mStoryContentTv.setText(story);
+        }
     }
 
     public void onFailure(String desc) {
-
+        if (mStoryContentTv != null) {
+            mStoryContentTv.setText(TextUtils.isEmpty(desc) ? "unknown error" : desc);
+        }
     }
 
     @Override

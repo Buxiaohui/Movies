@@ -20,6 +20,6 @@ public interface MoviesContract {
 
         MovieBannerModel getData();
 
-        void request();
+        int request();
     }
 }

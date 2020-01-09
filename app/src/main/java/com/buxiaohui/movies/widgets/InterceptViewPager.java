@@ -1,15 +1,14 @@
 package com.buxiaohui.movies.widgets;
 
+import com.buxiaohui.movies.BuildConfig;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
-
-import com.buxiaohui.movies.BuildConfig;
 
 public class InterceptViewPager extends ViewPager {
     private static final String TAG = "InterceptViewPager";

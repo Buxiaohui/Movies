@@ -24,11 +24,11 @@
                 android:id="@+id/banner_pager"
                 android:clipChildren = "false"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="@dimen/bannner_container_max_height"
                 android:layout_marginLeft="110dp"
                 android:layout_marginRight="110dp"
                 android:layout_marginBottom="20dp"
-                tools:background="@color/colorAccent" />
+                android:background="@color/colorAccent" />
 
             <include
                 layout="@layout/layout_movie_simple_desc"

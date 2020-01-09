@@ -64,7 +64,7 @@ public class MoviesPresenter extends BasePanelPresenter implements MoviesContrac
     }
 
     @Override
-    public void request() {
+    public int request() {
         Log.d("buxiaohui","bindView-request");
         // just test
         int actionRet = mDataFetcher.requestSingleById("tt7286456", new HttpHelper.NetListener() {
@@ -91,5 +91,6 @@ public class MoviesPresenter extends BasePanelPresenter implements MoviesContrac
         if (DEBUG) {
             Log.d(TAG, "request,actionRet:" + actionRet);
         }
+        return actionRet;
     }
 }

@@ -4,32 +4,28 @@ import org.jetbrains.annotations.NotNull;
 
 import com.buxiaohui.movies.R;
 import com.buxiaohui.movies.contract.BasePanelView;
+import com.buxiaohui.movies.movies.component.MovieBannerComponent;
 import com.buxiaohui.movies.movies.contract.MoviesContract;
-import com.buxiaohui.movies.movies.model.ActorModel;
-import com.buxiaohui.movies.movies.model.BannerImgMode;
 import com.buxiaohui.movies.movies.model.MovieBannerModel;
-import com.buxiaohui.movies.utils.UIUtils;
 import com.buxiaohui.movies.widgets.PullZoomScrollView;
 import com.google.android.material.tabs.TabLayout;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import java.util.ArrayList;
-
 public class MoviesFragment extends BasePanelView implements MoviesContract.View {
+    private static final String TAG = "MoviesFragment";
     private View mRootView;
     private MoviesContract.Presenter mPresenter;
     private TextView mNameTv;
@@ -43,6 +39,7 @@ public class MoviesFragment extends BasePanelView implements MoviesContract.View
     private PullZoomScrollView mPullZoomScrollView;
     private MoviesOverviewFragment mOverviewFragment;
     private MoviesRateFragment mRateFragment;
+    private MovieBannerComponent mMovieBannerComponent;
 
     @Override
     public void setPresenter(MoviesContract.Presenter presenter) {
@@ -116,10 +113,17 @@ public class MoviesFragment extends BasePanelView implements MoviesContract.View
         mGenreTv = view.findViewById(R.id.genre);
 
         mPullZoomScrollView = view.findViewById(R.id.content_scrollview);
-        mPullZoomScrollView.setMaxHeight(UIUtils.dip2px(this.getContext(), 400));
-        mPullZoomScrollView.setMinHeight(UIUtils.dip2px(this.getContext(), 300));
-
-
+        mPullZoomScrollView
+                .setMaxHeight(getContext().getResources().getDimensionPixelSize(R.dimen.bannner_container_max_height));
+        mPullZoomScrollView
+                .setMinHeight(getContext().getResources().getDimensionPixelSize(R.dimen.bannner_container_min_height));
+        mPullZoomScrollView.setOnSizeChangeListener(new PullZoomScrollView.OnSizeChangeListener() {
+            @Override
+            public void onSizeChange(int height, @FloatRange(from = 0.0f, to = 1.0f) float progress) {
+                Log.d(TAG, "onSizeChange,height:" + height + ",progress:" + progress);
+                mMovieBannerComponent.onSizeChange(height, progress);
+            }
+        });
         mDescTabLayout = view.findViewById(R.id.tab_layout);
         mDescViewPager = view.findViewById(R.id.tab_viewpager);
 
@@ -132,89 +136,26 @@ public class MoviesFragment extends BasePanelView implements MoviesContract.View
     }
 
     private void initBannerSection() {
-        final ArrayList<BannerImgMode> bannerList = new ArrayList<>();
-        bannerList.add(new BannerImgMode());
-        bannerList.add(new BannerImgMode());
-        bannerList.add(new BannerImgMode());
-        bannerList.add(new BannerImgMode());
-        bannerList.add(new BannerImgMode());
-        bannerList.add(new BannerImgMode());
-        bannerList.add(new BannerImgMode());
-        mBannerViewPager.setOffscreenPageLimit(4);
-        mBannerViewPager.setPageTransformer(false, new ViewPager.PageTransformer() {
-            final float DEFAULT_MIN_SCALE = 0.65f;
-            float mMinScale = DEFAULT_MIN_SCALE;
-            final float DEFAULT_CENTER = 0.5f;
+        mMovieBannerComponent = new MovieBannerComponent(new MovieBannerComponent.BannerCallback() {
+            @Override
+            public ViewPager getBannerView() {
+                return mBannerViewPager;
+            }
 
             @Override
-            public void transformPage(@NonNull View view, float position) {
+            public Context getCtx() {
+                return MoviesFragment.this.getContext();
+            }
 
-                int pageWidth = view.getWidth();
-                int pageHeight = view.getHeight();
-
-                view.setPivotY(pageHeight / 2);
-                view.setPivotX(pageWidth / 2);
-                if (position < -1) { // [-Infinity,-1)
-                    // This page is way off-screen to the left.
-                    view.setScaleX(mMinScale);
-                    view.setScaleY(mMinScale);
-                    view.setPivotX(pageWidth);
-                } else if (position <= 1) { // [-1,1]
-                    // Modify the default slide transition to shrink the page as well
-                    if (position < 0) { //1-2:1[0,-1] ;2-1:1[-1,0]
-                        float scaleFactor = (1 + position) * (1 - mMinScale) + mMinScale;
-                        view.setScaleX(scaleFactor);
-                        view.setScaleY(scaleFactor);
-
-                        view.setPivotX(pageWidth * (DEFAULT_CENTER + (DEFAULT_CENTER * -position)));
-
-                    } else { //1-2:2[1,0] ;2-1:2[0,1]
-
-                        float scaleFactor = (1 - position) * (1 - mMinScale) + mMinScale;
-                        view.setScaleX(scaleFactor);
-                        view.setScaleY(scaleFactor);
-                        view.setPivotX(pageWidth * ((1 - position) * DEFAULT_CENTER));
-                    }
-
-
-                } else { // (1,+Infinity]
-                    view.setPivotX(0);
-                    view.setScaleX(mMinScale);
-                    view.setScaleY(mMinScale);
-
+            @Override
+            public int request() {
+                if (mPresenter != null) {
+                    return mPresenter.request();
                 }
+                return Config.RequestActionRet.UNKNOWN;
             }
         });
-        mBannerViewPager.setAdapter(new
-
-                                            PagerAdapter() {
-                                                @Override
-                                                public int getCount() {
-                                                    return bannerList.size(); // test
-                                                }
-
-                                                @Override
-                                                public boolean isViewFromObject(View arg0, Object arg1) {
-                                                    return arg0 == arg1;
-                                                }
-
-                                                @Override
-                                                public void destroyItem(View container, int position, Object object) {
-                                                    ((ViewPager) container).removeView((View) object);
-                                                }
-
-                                                @Override
-                                                public Object instantiateItem(View container, int position) {
-                                                    ImageView image = new ImageView(container.getContext());
-                                                    image.setImageResource(bannerList.get(position).getImgResId());
-                                                    image.setScaleType(ImageView.ScaleType.FIT_XY);
-                                                    ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(200, 200);
-                                                    image.setLayoutParams(layoutParams);
-                                                    ((ViewPager) container).addView(image);
-                                                    Log.d("instantiateItem", "position:" + position);
-                                                    return image;
-                                                }
-                                            });
+        mMovieBannerComponent.initBannerSection();
     }
 
     private void initDescSection() {
