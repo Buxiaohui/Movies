@@ -26,4 +26,4 @@ TODO:
 ===== 
 1.animation
 
-![](movies-p2.png)
+![](movies-banner-anim.png)
