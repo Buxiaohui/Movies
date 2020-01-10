@@ -22,8 +22,8 @@ MVP mode
 ![](movies.png)
 
 
-TODO
-=====
-1.banner animation
+TODO:
+===== 
+1.animation
 
-2.Rate move fragment
+![](movies-p2.png)
