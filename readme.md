@@ -20,3 +20,10 @@ MVP mode
 
 
 ![](movies.png)
+
+
+TODO
+=====
+1.banner animation
+
+2.Rate move fragment
