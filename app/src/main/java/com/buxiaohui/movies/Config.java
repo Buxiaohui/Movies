@@ -1,4 +1,4 @@
-package com.buxiaohui.movies.movies;
+package com.buxiaohui.movies;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

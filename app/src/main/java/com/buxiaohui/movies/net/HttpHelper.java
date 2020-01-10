@@ -8,7 +8,7 @@ import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 
 import com.buxiaohui.movies.BuildConfig;
-import com.buxiaohui.movies.movies.Config;
+import com.buxiaohui.movies.Config;
 
 import android.os.Handler;
 import android.util.Log;

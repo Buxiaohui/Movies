@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.buxiaohui.movies.BuildConfig;
-import com.buxiaohui.movies.movies.Config;
+import com.buxiaohui.movies.Config;
 import com.buxiaohui.movies.movies.contract.MoviesContract;
 import com.buxiaohui.movies.net.HttpHelper;
 

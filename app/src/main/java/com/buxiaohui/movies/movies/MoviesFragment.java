@@ -2,6 +2,7 @@ package com.buxiaohui.movies.movies;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.buxiaohui.movies.Config;
 import com.buxiaohui.movies.R;
 import com.buxiaohui.movies.contract.BasePanelView;
 import com.buxiaohui.movies.movies.component.MovieBannerComponent;

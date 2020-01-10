@@ -81,17 +81,6 @@ public class MovieBannerComponent {
 
     public void onSizeChange(int height, @FloatRange(from = 0.0f, to = 1.0f) float progress) {
         // TODO 改变顶部样式
-        /**
-         * 向上：
-         * 当midPageSize > edgePageSie   执行midPage缩小
-         * 当midPageSize = leftRightPageSie   执行整体的缩小
-         */
-
-        /**
-         * 向下：
-         * 当midPageSize > leftRightPageSie   执行整体放大
-         * 当midPageSize = leftRightPageSie   执行整体的缩小
-         */
     }
 
     /**
@@ -99,9 +88,15 @@ public class MovieBannerComponent {
      */
     public void initBannerSection() {
         final ArrayList<BannerImgMode> bannerList = new ArrayList<>();
-        String imgUrl = "https://m.media-amazon"
+        /**
+         * test
+         */
+        final String imgUrl = "https://m.media-amazon"
                 + ".com/images/M/MV5BNGVjNWI4ZGUtNzE0MS00YTJmLWE0ZDctN2ZiYTk2YmI3NTYyXkEyXkFqcGdeQXVyMTkxNjUyNQ@@"
                 + "._V1_SX300.jpg";
+        /**
+         * 本地构造banner数据
+         */
         bannerList.add(new BannerImgMode(imgUrl));
         bannerList.add(new BannerImgMode(imgUrl));
         bannerList.add(new BannerImgMode(imgUrl));
@@ -159,6 +154,9 @@ public class MovieBannerComponent {
             public Object instantiateItem(View container, int position) {
                 View view = LayoutInflater.from(container.getContext()).inflate(R.layout.item_movie_banner, null);
                 ImageView image = view.findViewById(R.id.img);
+
+                image.setScaleType(ImageView.ScaleType.FIT_XY); //  test
+
                 ViewGroup.LayoutParams layoutParams =
                         new ViewGroup.LayoutParams(mBannerCardWidth, mBannerCardHeight);
                 view.setLayoutParams(layoutParams);
@@ -166,7 +164,7 @@ public class MovieBannerComponent {
                         options = new RequestOptions().error(R.drawable.img_load_failure)
                         .bitmapTransform(new RoundedCorners(30));//图片圆角为30
                 Glide.with(image.getContext()).load(bannerList.get(position).getImgUrl()).apply(options).into(image);
-                view.setTag(position);
+                view.setTag(R.id.view_tag_sec, position);
                 ((ViewPager) container).addView(view);
                 Log.d("instantiateItem", "position:" + position);
                 return view;
@@ -178,7 +176,7 @@ public class MovieBannerComponent {
 
             }
         });
-        // 假设已经有了banner数据
+
         mBannerViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -187,6 +185,7 @@ public class MovieBannerComponent {
 
             @Override
             public void onPageSelected(int position) {
+                mBannerViewPager.setTag(R.id.view_tag_first, position);
                 if (mCallback != null) {
                     mCallback.request();
                 }

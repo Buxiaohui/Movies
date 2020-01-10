@@ -1,7 +1,7 @@
 package com.buxiaohui.movies.movies.contract;
 
 import com.buxiaohui.movies.contract.BaseContract;
-import com.buxiaohui.movies.movies.Config;
+import com.buxiaohui.movies.Config;
 import com.buxiaohui.movies.movies.model.MovieBannerModel;
 import com.buxiaohui.movies.net.HttpHelper;
 

@@ -1,7 +1,7 @@
 package com.buxiaohui.movies.widgets;
 
 import com.buxiaohui.movies.BuildConfig;
-import com.buxiaohui.movies.movies.Config;
+import com.buxiaohui.movies.Config;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 
