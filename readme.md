@@ -27,3 +27,8 @@ TODO:
 1.animation
 
 ![](movies-banner-anim.png)
+
+
+Get Apk
+=====
+https://pan.baidu.com/s/1nMQ1wwe157gLjys5elec_A
