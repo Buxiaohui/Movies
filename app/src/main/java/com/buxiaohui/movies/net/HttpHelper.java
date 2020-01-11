@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import com.buxiaohui.movies.BuildConfig;
 import com.buxiaohui.movies.Config;
+import com.buxiaohui.movies.utils.LogUtils;
 
 import android.os.Handler;
 import android.util.Log;
@@ -79,9 +80,9 @@ public class HttpHelper {
                     }
                 }
                 paramStr.deleteCharAt(paramStr.length() - 1);
-                if (DEBUG) {
-                    Log.d(TAG, "get,paramStr:" + paramStr.toString());
-                    Log.d(TAG, "get,paramStr:" + url + paramStr);
+                if (LogUtils.DEBUG) {
+                    LogUtils.d(TAG, "get,paramStr:" + paramStr.toString());
+                    LogUtils.d(TAG, "get,paramStr:" + url + paramStr);
                 }
             }
 

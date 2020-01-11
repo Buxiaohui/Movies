@@ -6,8 +6,10 @@ import com.buxiaohui.movies.Config;
 import com.buxiaohui.movies.R;
 import com.buxiaohui.movies.contract.BasePanelView;
 import com.buxiaohui.movies.movies.component.MovieBannerComponent;
+import com.buxiaohui.movies.movies.component.MovieSizeConfig;
 import com.buxiaohui.movies.movies.contract.MoviesContract;
 import com.buxiaohui.movies.movies.model.MovieBannerModel;
+import com.buxiaohui.movies.utils.LogUtils;
 import com.buxiaohui.movies.widgets.PullZoomScrollView;
 import com.google.android.material.tabs.TabLayout;
 
@@ -114,14 +116,17 @@ public class MoviesFragment extends BasePanelView implements MoviesContract.View
         mGenreTv = view.findViewById(R.id.genre);
 
         mPullZoomScrollView = view.findViewById(R.id.content_scrollview);
-        mPullZoomScrollView
-                .setMaxHeight(getContext().getResources().getDimensionPixelSize(R.dimen.bannner_container_max_height));
-        mPullZoomScrollView
-                .setMinHeight(getContext().getResources().getDimensionPixelSize(R.dimen.bannner_container_min_height));
+
+        MovieSizeConfig sizeConfig = new MovieSizeConfig(this.getContext());
+        int maxHeight = sizeConfig.getMaxHeight();
+        int minHeight = sizeConfig.getMinHeight();
+        mPullZoomScrollView.setMaxHeight(maxHeight);
+        mPullZoomScrollView.setMinHeight(minHeight);
+
         mPullZoomScrollView.setOnSizeChangeListener(new PullZoomScrollView.OnSizeChangeListener() {
             @Override
             public void onSizeChange(int height, @FloatRange(from = 0.0f, to = 1.0f) float progress) {
-                Log.d(TAG, "onSizeChange,height:" + height + ",progress:" + progress);
+                LogUtils.d(TAG, "onSizeChange,height:" + height + ",progress:" + progress);
                 mMovieBannerComponent.onSizeChange(height, progress);
             }
         });

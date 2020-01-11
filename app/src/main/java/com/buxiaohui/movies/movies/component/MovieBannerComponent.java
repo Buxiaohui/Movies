@@ -7,14 +7,15 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.buxiaohui.movies.R;
 import com.buxiaohui.movies.movies.model.BannerImgMode;
-import com.buxiaohui.movies.utils.UIUtils;
+import com.buxiaohui.movies.utils.LogUtils;
 
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
@@ -25,14 +26,18 @@ import androidx.viewpager.widget.ViewPager;
  * banner
  */
 public class MovieBannerComponent {
+    public static final float DEFAULT_MIN_SCALE = 0.65f;
     /**
      * <边缘的page最大高度> 与 <主page最大高度>的比
      */
-    private static final float DEFAULT_MIN_SCALE = 0.65f;
+    private static final String TAG = "MovieBannerComponent";
     private static final float DEFAULT_CENTER = 0.5f;
 
     private int mBannerCardHeight;
-    private int mBannerCardWidth;
+    /**
+     * page_width
+     */
+    private int mBannerPageWidth;
     /**
      * Banner最小高度
      */
@@ -61,26 +66,131 @@ public class MovieBannerComponent {
     private ViewPager mBannerViewPager;
     private Context mCtx;
     private BannerCallback mCallback;
+    private MovieSizeConfig mSizeConfig; // TODO 尺寸定义全部挪到MovieSizeConfig
+
+    private float mAspectRatio;
+    /**
+     * 根据滑动距离做动画
+     *
+     * @param height
+     * viewPager's height
+     * @param progress
+     * from = 0.0f(minHeight), to = 1.0f (maxHeight)
+     */
+    private float mCurProgress = 1f;
+
+    private int mMarginLRPX;
+
+    private ViewPager.PageTransformer mScaleAnimTransformer = new ViewPager.PageTransformer() {
+
+        @Override
+        public void transformPage(@NonNull View view, float position) {
+            ((TextView) view.findViewById(R.id.desc)).setText("" + (Integer) view.getTag() + "::" + position);
+            int pageWidth = view.getWidth();
+            int pageHeight = view.getHeight();
+            View innerContainer = view.findViewById(R.id.inner_container);
+            view.setPivotY(pageHeight / 2);
+            view.setPivotX(pageWidth / 2);
+            RelativeLayout.LayoutParams layoutParams =
+                    (RelativeLayout.LayoutParams) innerContainer.getLayoutParams();
+            if (layoutParams.height >= mMainPageMaxHeight * DEFAULT_MIN_SCALE) {
+                layoutParams.height = mBannerCardHeight;
+                layoutParams.width = (int) (mBannerCardHeight * mAspectRatio);
+            }
+            innerContainer.setLayoutParams(layoutParams);
+            // 横向的 节点1之前
+            boolean isBeforeP1 = mBannerCardHeight >= (int) (mMainPageMaxHeight * DEFAULT_MIN_SCALE);
+            if (!isBeforeP1) {
+                if (position < -1) { // [-Infinity,-1)
+                    view.setScaleX(DEFAULT_MIN_SCALE);
+                    view.setScaleY(DEFAULT_MIN_SCALE);
+                } else if (position < 0) { // [-1,0)
+                    float scaleFactor = (1 + position) * (1 - DEFAULT_MIN_SCALE) + DEFAULT_MIN_SCALE;
+                    view.setScaleX(scaleFactor);
+                    view.setScaleY(scaleFactor);
+                } else if (position <= 1) { // (0,1]
+                    float scaleFactor = (1 - position) * (1 - DEFAULT_MIN_SCALE) + DEFAULT_MIN_SCALE;
+                    view.setScaleX(scaleFactor);
+                    view.setScaleY(scaleFactor);
+                } else { // (1,+Infinity]
+                    view.setScaleX(DEFAULT_MIN_SCALE);
+                    view.setScaleY(DEFAULT_MIN_SCALE);
+                }
+            } else {
+                LinearLayout.LayoutParams pagerLayoutParams =
+                        (LinearLayout.LayoutParams) mBannerViewPager.getLayoutParams();
+                pagerLayoutParams.leftMargin = (int) (((mBannerPageWidth - layoutParams.width) * 0.5f) + mMarginLRPX);
+                pagerLayoutParams.rightMargin = pagerLayoutParams.leftMargin;
+                float curBannerCardHeight = (mBannerMaxHeight - mPageMinHeight) * mCurProgress + mPageMinHeight;
+                float s = (mMainPageMaxHeight * 1.0f * DEFAULT_MIN_SCALE) / (curBannerCardHeight * 1.0f);
+                LogUtils.d(TAG, "transformPage,s:" + s + ",curBannerCardHeight:" + curBannerCardHeight);
+                if (position < -1) { // [-Infinity,-1)
+                    view.setScaleX(s);
+                    view.setScaleY(s);
+                } else if (position < 0) { // [-1,0)
+                    float scaleFactor = (1 + position) * (1 - s) + s;
+                    view.setScaleX(scaleFactor);
+                    view.setScaleY(scaleFactor);
+                } else if (position <= 1) { // (0,1]
+                    float scaleFactor = (1 - position) * (1 - s) + s;
+                    view.setScaleX(scaleFactor);
+                    view.setScaleY(scaleFactor);
+                } else { // (1,+Infinity]
+                    view.setScaleX(s);
+                    view.setScaleY(s);
+                }
+            }
+
+        }
+    };
 
     public MovieBannerComponent(@NonNull BannerCallback callback) {
         mCtx = callback.getCtx();
         mCallback = callback;
-        mScreenWidth = UIUtils.getScreenWidth(mCtx);
-        mScreenHeight = UIUtils.getScreenHeight(mCtx);
-        mBannerMaxHeight = mCtx.getResources().getDimensionPixelSize(R.dimen.bannner_container_max_height);
-        mBannerMinHeight = mCtx.getResources().getDimensionPixelSize(R.dimen.bannner_container_min_height);
-        mBannerViewPager = callback.getBannerView();
+        // init size
+        mSizeConfig = new MovieSizeConfig(mCtx);
+        mScreenWidth = mSizeConfig.getScreenWidth();
+        mScreenHeight = mSizeConfig.getScreenHeight();
+        mBannerMaxHeight = mSizeConfig.getMaxHeight();
+        mBannerMinHeight = (int) (mBannerMaxHeight * DEFAULT_MIN_SCALE);
+
         mMainPageMaxHeight = mBannerMaxHeight;
         mEdgePageMaxHeight = (int) (mBannerMaxHeight * DEFAULT_MIN_SCALE);
         mPageMinHeight = mBannerMinHeight;
-
-        mBannerCardWidth = (mScreenWidth >> 1);
         mBannerCardHeight = mBannerMaxHeight;
+        mMarginLRPX = mSizeConfig.getMarginLR();
+        mBannerPageWidth = (mScreenWidth - (mMarginLRPX << 1));
+        mAspectRatio = mBannerPageWidth * 1f / mMainPageMaxHeight * 1f;
+        mBannerViewPager = callback.getBannerView();
 
     }
 
     public void onSizeChange(int height, @FloatRange(from = 0.0f, to = 1.0f) float progress) {
-        // TODO 改变顶部样式
+        LogUtils.d(TAG, "onSizeChange,progress:" + progress + ",mBannerCardHeight:" + mBannerCardHeight);
+        mCurProgress = progress;
+        mBannerCardHeight = (int) ((mBannerMaxHeight - mPageMinHeight) * mCurProgress + mPageMinHeight);
+        // 主动调用transformer
+        if (mScaleAnimTransformer != null) {
+            final int scrollX = mBannerViewPager.getScrollX();
+            final int childCount = mBannerViewPager.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                final View child = mBannerViewPager.getChildAt(i);
+                final ViewPager.LayoutParams lp = (ViewPager.LayoutParams) child.getLayoutParams();
+
+                if (lp.isDecor) {
+                    continue;
+                }
+                final float transformPos = (float) (child.getLeft() - scrollX) / getClientWidth();
+
+                mScaleAnimTransformer.transformPage(child, transformPos);
+            }
+        }
+
+    }
+
+    private int getClientWidth() {
+        return mBannerViewPager.getMeasuredWidth() - mBannerViewPager.getPaddingLeft() - mBannerViewPager
+                .getPaddingRight();
     }
 
     /**
@@ -105,35 +215,8 @@ public class MovieBannerComponent {
         bannerList.add(new BannerImgMode(imgUrl));
         bannerList.add(new BannerImgMode(imgUrl));
         mBannerViewPager.setOffscreenPageLimit(4);
-        mBannerViewPager.setPageTransformer(false, new ViewPager.PageTransformer() {
-
-            @Override
-            public void transformPage(@NonNull View view, float position) {
-                ((TextView) view.findViewById(R.id.desc)).setText("" + (Integer) view.getTag() + "::" + position);
-                int pageWidth = view.getWidth();
-                int pageHeight = view.getHeight();
-
-                view.setPivotY(pageHeight / 2);
-                view.setPivotX(pageWidth / 2);
-                if (position < -1) { // [-Infinity,-1)
-                    view.setScaleX(DEFAULT_MIN_SCALE);
-                    view.setScaleY(DEFAULT_MIN_SCALE);
-                } else if (position < 0) {
-                    float scaleFactor = (1 + position) * (1 - DEFAULT_MIN_SCALE) + DEFAULT_MIN_SCALE;
-                    view.setScaleX(scaleFactor);
-                    view.setScaleY(scaleFactor);
-                } else if (position <= 1) {
-                    float scaleFactor = (1 - position) * (1 - DEFAULT_MIN_SCALE) + DEFAULT_MIN_SCALE;
-                    view.setScaleX(scaleFactor);
-                    view.setScaleY(scaleFactor);
-                } else { // (1,+Infinity]
-                    view.setScaleX(DEFAULT_MIN_SCALE);
-                    view.setScaleY(DEFAULT_MIN_SCALE);
-                }
-            }
-        });
+        mBannerViewPager.setPageTransformer(false, mScaleAnimTransformer);
         mBannerViewPager.setAdapter(new PagerAdapter() {
-            int screenWidth = UIUtils.getScreenWidth(mBannerViewPager.getContext());
 
             @Override
             public int getCount() {
@@ -152,22 +235,23 @@ public class MovieBannerComponent {
 
             @Override
             public Object instantiateItem(View container, int position) {
-                View view = LayoutInflater.from(container.getContext()).inflate(R.layout.item_movie_banner, null);
-                ImageView image = view.findViewById(R.id.img);
+                View page = LayoutInflater.from(container.getContext()).inflate(R.layout.item_movie_banner, null);
+                ImageView image = page.findViewById(R.id.img);
+                View innerContainer = page.findViewById(R.id.inner_container);
 
                 image.setScaleType(ImageView.ScaleType.FIT_XY); //  test
 
-                ViewGroup.LayoutParams layoutParams =
-                        new ViewGroup.LayoutParams(mBannerCardWidth, mBannerCardHeight);
-                view.setLayoutParams(layoutParams);
+                RelativeLayout.LayoutParams layoutParams =
+                        new RelativeLayout.LayoutParams((int) (mBannerCardHeight * mAspectRatio), mBannerCardHeight);
+                layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+                innerContainer.setLayoutParams(layoutParams);
+
                 RequestOptions
                         options = new RequestOptions().error(R.drawable.img_load_failure)
                         .bitmapTransform(new RoundedCorners(30));//图片圆角为30
                 Glide.with(image.getContext()).load(bannerList.get(position).getImgUrl()).apply(options).into(image);
-                view.setTag(R.id.view_tag_sec, position);
-                ((ViewPager) container).addView(view);
-                Log.d("instantiateItem", "position:" + position);
-                return view;
+                ((ViewPager) container).addView(page);
+                return page;
             }
         });
         mBannerViewPager.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -185,7 +269,6 @@ public class MovieBannerComponent {
 
             @Override
             public void onPageSelected(int position) {
-                mBannerViewPager.setTag(R.id.view_tag_first, position);
                 if (mCallback != null) {
                     mCallback.request();
                 }

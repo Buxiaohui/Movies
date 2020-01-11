@@ -6,22 +6,31 @@
     android:background="@android:color/holo_green_light"
     tools:context=".main.MainActivity">
 
-    <ImageView
-        android:id="@+id/img"
+    <RelativeLayout
+        android:id="@+id/inner_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:background="@color/colorPrimaryDark" />
+        android:layout_centerInParent="true"
+        android:background="@android:color/holo_orange_dark">
 
-    <TextView
-        android:id="@+id/desc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_centerHorizontal="true"
-        android:layout_centerInParent="false"
-        android:text="index"
-        android:textStyle="bold"
-        android:textColor="@color/colorAccent"
-        tools:background="@color/colorAccent" />
+        <ImageView
+            android:id="@+id/img"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            tools:background="@color/colorPrimaryDark" />
 
+        <TextView
+            android:id="@+id/desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="false"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            android:text="index"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"
+            tools:background="@color/colorAccent" />
+
+    </RelativeLayout>
 </RelativeLayout>

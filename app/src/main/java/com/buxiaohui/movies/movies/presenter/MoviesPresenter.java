@@ -6,17 +6,16 @@ import com.buxiaohui.movies.movies.contract.MoviesContract;
 import com.buxiaohui.movies.movies.data.DataFetcher;
 import com.buxiaohui.movies.movies.model.MovieBannerModel;
 import com.buxiaohui.movies.net.HttpHelper;
+import com.buxiaohui.movies.utils.LogUtils;
 import com.google.gson.Gson;
 
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import androidx.annotation.NonNull;
 
 public class MoviesPresenter extends BasePanelPresenter implements MoviesContract.Presenter {
     private static final String TAG = "MoviesPresenter";
     private static final int INNER_MSG_TYPE_FAIL = -1;
-    private static final boolean DEBUG = BuildConfig.DEBUG;
     private static final int INNER_MSG_TYPE_SUCCESS = 0;
     private MoviesContract.Fetcher mDataFetcher;
     private MoviesContract.View mView;
@@ -65,12 +64,12 @@ public class MoviesPresenter extends BasePanelPresenter implements MoviesContrac
 
     @Override
     public int request() {
-        Log.d("buxiaohui","bindView-request");
+        LogUtils.d("buxiaohui", "bindView-request");
         // just test
         int actionRet = mDataFetcher.requestSingleById("tt7286456", new HttpHelper.NetListener() {
             @Override
             public void onSuccess(String response) {
-                Log.e(TAG, "request,onSuccess,response:" + response);
+                LogUtils.d(TAG, "request,onSuccess,response:" + response);
                 MovieBannerModel movieBannerModel = new Gson().fromJson(response, MovieBannerModel.class);
                 mMovieBannerModel = movieBannerModel;
                 Message message = Message.obtain();
@@ -88,9 +87,7 @@ public class MoviesPresenter extends BasePanelPresenter implements MoviesContrac
                 mHandler.sendMessage(message);
             }
         });
-        if (DEBUG) {
-            Log.d(TAG, "request,actionRet:" + actionRet);
-        }
+        LogUtils.d(TAG, "request,actionRet:" + actionRet);
         return actionRet;
     }
 }
