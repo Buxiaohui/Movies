@@ -9,26 +9,35 @@
     <!--tab host-->
     <com.buxiaohui.movies.widgets.PullZoomScrollView
         android:id="@+id/content_scrollview"
-        android:fillViewport="true"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clipChildren = "false"
-            tools:background="@color/colorPrimaryDark"
-            android:orientation="vertical">
+            android:clipChildren="false"
+            android:orientation="vertical"
+            tools:background="@color/colorPrimaryDark">
+            <!--  TODO padding方式更好
+            <androidx.viewpager.widget.ViewPager
+                            android:id="@+id/banner_pager"
+                            android:clipToPadding = "false"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/bannner_container_max_height"
+                            android:paddingLeft="@dimen/bannner_lr_margin"
+                            android:paddingRight="@dimen/bannner_lr_margin"
+                            android:background="@color/colorAccent" />-->
 
             <androidx.viewpager.widget.ViewPager
                 android:id="@+id/banner_pager"
-                android:clipChildren = "false"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/bannner_container_max_height"
-                android:layout_marginLeft="110dp"
-                android:layout_marginRight="110dp"
+                android:layout_marginLeft="@dimen/bannner_lr_margin"
+                android:layout_marginRight="@dimen/bannner_lr_margin"
                 android:layout_marginBottom="20dp"
-                android:background="@color/colorAccent" />
+                android:background="@color/colorAccent"
+                android:clipChildren="false" />
 
             <include
                 layout="@layout/layout_movie_simple_desc"

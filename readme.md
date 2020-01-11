@@ -27,6 +27,11 @@ TODO:
 1.animation
 
 ![](movies-banner-anim.png)
+两种方案， 
+
+1.setPageMargin 
+
+2.view 的位移
 
 
 Get Apk
