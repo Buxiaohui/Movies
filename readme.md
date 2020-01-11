@@ -26,7 +26,10 @@ Animation
 ===== 
 
 
-![](movies-banner-anim.png)
+![](movies-banner-anim.png)  
+
+step-1:  
+![](movies-banner-animation-step-1.png)
 
 step-1完成情况:  
 90%，缺失topMargin的处理，实现难度一般。  
