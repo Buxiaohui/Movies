@@ -1,4 +1,4 @@
-package com.buxiaohui.movies.movies.component;
+package com.buxiaohui.movies.movies;
 
 import static com.buxiaohui.movies.movies.component.MovieBannerComponent.DEFAULT_MIN_SCALE;
 

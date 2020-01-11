@@ -22,18 +22,20 @@ MVP mode
 ![](movies.png)
 
 
-TODO:
+Animation
 ===== 
-1.animation
+
 
 ![](movies-banner-anim.png)
-两种方案， 
 
-1.setPageMargin 
-
-2.view 的位移
+step-1完成情况:  
+90%，缺失topMargin的处理，实现难度一般。  
+step-2完成情况:  
+0%，未开始，基本原理与step-1的相同  
+step-3完成情况:  
+0%，未开始，基本原理与step-1的相同  
 
 
 Get Apk
 =====
-https://pan.baidu.com/s/1ixAoioDTkkLh-4xC4zxfCA
+https://pan.baidu.com/s/1SbrJ1BwkS068Tn8xYx_hsA

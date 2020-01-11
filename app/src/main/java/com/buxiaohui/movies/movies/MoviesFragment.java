@@ -6,7 +6,6 @@ import com.buxiaohui.movies.Config;
 import com.buxiaohui.movies.R;
 import com.buxiaohui.movies.contract.BasePanelView;
 import com.buxiaohui.movies.movies.component.MovieBannerComponent;
-import com.buxiaohui.movies.movies.component.MovieSizeConfig;
 import com.buxiaohui.movies.movies.contract.MoviesContract;
 import com.buxiaohui.movies.movies.model.MovieBannerModel;
 import com.buxiaohui.movies.utils.LogUtils;
@@ -15,11 +14,11 @@ import com.google.android.material.tabs.TabLayout;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -209,6 +208,9 @@ public class MoviesFragment extends BasePanelView implements MoviesContract.View
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (mMovieBannerComponent != null) {
+            mMovieBannerComponent.onDestroy();
+        }
     }
 
     interface ParamsKey {

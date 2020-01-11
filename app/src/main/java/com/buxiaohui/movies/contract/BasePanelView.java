@@ -1,7 +1,7 @@
 package com.buxiaohui.movies.contract;
 
-import androidx.fragment.app.Fragment;
+import com.buxiaohui.movies.BaseFragment;
 
-public abstract class BasePanelView<P extends BaseContract.Presenter> extends Fragment {
+public abstract class BasePanelView<P extends BaseContract.Presenter> extends BaseFragment {
 
 }
