@@ -35,8 +35,9 @@
                 android:layout_height="@dimen/bannner_container_max_height"
                 android:layout_marginLeft="@dimen/bannner_lr_margin"
                 android:layout_marginRight="@dimen/bannner_lr_margin"
-                android:layout_marginBottom="20dp"
-                android:background="@color/colorAccent"
+                android:layout_marginBottom="@dimen/bannner_view_pager_bottom_margin"
+                android:layout_marginTop="@dimen/bannner_view_pager_top_max_margin"
+                tools:background="@color/colorAccent"
                 android:clipChildren="false" />
 
             <include

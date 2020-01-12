@@ -14,6 +14,8 @@ public class MovieSizeConfig {
     private int pageMargin;
     private int screenWidth;
     private int screenHeight;
+    private int topMaxMargin;
+    private int bottomMaxMargin;
 
     public MovieSizeConfig(Context ctx) {
         screenWidth = UIUtils.getScreenWidth(ctx);
@@ -25,6 +27,18 @@ public class MovieSizeConfig {
         minHeight = (int) (maxHeight * DEFAULT_MIN_SCALE);
 
         pageMargin = ctx.getResources().getDimensionPixelOffset(R.dimen.bannner_page_margin);
+
+        topMaxMargin = ctx.getResources().getDimensionPixelOffset(R.dimen.bannner_view_pager_top_max_margin);
+
+        bottomMaxMargin = ctx.getResources().getDimensionPixelOffset(R.dimen.bannner_view_pager_bottom_max_margin);
+    }
+
+    public int getBottomMaxMargin() {
+        return bottomMaxMargin;
+    }
+
+    public int getTopMaxMargin() {
+        return topMaxMargin;
     }
 
     public int getMinHeight() {

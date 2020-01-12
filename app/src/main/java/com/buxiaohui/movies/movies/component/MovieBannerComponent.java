@@ -1,17 +1,6 @@
 package com.buxiaohui.movies.movies.component;
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-
-import androidx.annotation.FloatRange;
-import androidx.annotation.NonNull;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import java.util.ArrayList;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
@@ -22,7 +11,17 @@ import com.buxiaohui.movies.movies.MovieSizeConfig;
 import com.buxiaohui.movies.movies.model.BannerImgMode;
 import com.buxiaohui.movies.utils.LogUtils;
 
-import java.util.ArrayList;
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import androidx.annotation.FloatRange;
+import androidx.annotation.NonNull;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 /**
  * banner
@@ -92,7 +91,7 @@ public class MovieBannerComponent extends BaseComponent {
             int pageWidth = view.getWidth();
             int pageHeight = view.getHeight();
             View innerContainer = view.findViewById(R.id.inner_container);
-            if ((int) view.getTag() == 1) {
+            if ((int) view.getTag() == 1 && LogUtils.DEBUG) {
                 LogUtils.d(TAG, "transformPage,setPivotX:" + pageWidth / 2);
                 LogUtils.d(TAG, "transformPage,setPivotY:" + pageHeight / 2);
                 LogUtils.d(TAG, "transformPage,mBannerViewPager.getPageMargin():" + mBannerViewPager.getPageMargin());
@@ -102,9 +101,13 @@ public class MovieBannerComponent extends BaseComponent {
             RelativeLayout.LayoutParams layoutParams =
                     (RelativeLayout.LayoutParams) innerContainer.getLayoutParams();
             boolean isHigher = layoutParams.height >= mMainPageMaxHeight * DEFAULT_MIN_SCALE;
-            LogUtils.d(TAG, "transformPage,isHigher:" + isHigher);
-            LogUtils.d(TAG, "transformPage,layoutParams.height:" + layoutParams.height);
-            LogUtils.d(TAG, "transformPage,mMainPageMaxHeight * DEFAULT_MIN_SCALE:" + mMainPageMaxHeight * DEFAULT_MIN_SCALE);
+            if (LogUtils.DEBUG) {
+                LogUtils.d(TAG, "transformPage,isHigher:" + isHigher);
+                LogUtils.d(TAG, "transformPage,layoutParams.height:" + layoutParams.height);
+                LogUtils.d(TAG,
+                        "transformPage,mMainPageMaxHeight * DEFAULT_MIN_SCALE:"
+                                + mMainPageMaxHeight * DEFAULT_MIN_SCALE);
+            }
             if (layoutParams.height >= (int) (mMainPageMaxHeight * DEFAULT_MIN_SCALE)) {
                 layoutParams.height = mBannerCardHeight;
                 layoutParams.width = (int) (mBannerCardHeight * mAspectRatio);
@@ -113,7 +116,9 @@ public class MovieBannerComponent extends BaseComponent {
 
             // 横向的 节点1之前
             boolean isBeforeP1 = mBannerCardHeight >= (int) (mMainPageMaxHeight * DEFAULT_MIN_SCALE);
-            LogUtils.d(TAG, "transformPage,isBeforeP1:" + isBeforeP1);
+            if (LogUtils.DEBUG) {
+                LogUtils.d(TAG, "transformPage,isBeforeP1:" + isBeforeP1);
+            }
             if (!isBeforeP1) {
                 if (position < -1) { // [-Infinity,-1)
                     view.setScaleX(DEFAULT_MIN_SCALE);
@@ -140,7 +145,9 @@ public class MovieBannerComponent extends BaseComponent {
                 pagerLayoutParams.rightMargin = newLRMargin;
                 float curBannerCardHeight = (mBannerMaxHeight - mPageMinHeight) * mCurProgress + mPageMinHeight;
                 float s = (mMainPageMaxHeight * 1.0f * DEFAULT_MIN_SCALE) / (curBannerCardHeight * 1.0f);
-                LogUtils.d(TAG, "transformPage,s:" + s + ",curBannerCardHeight:" + curBannerCardHeight);
+                if (LogUtils.DEBUG) {
+                    LogUtils.d(TAG, "transformPage,s:" + s + ",curBannerCardHeight:" + curBannerCardHeight);
+                }
                 int maxOffsetAbs = (mBannerPageMaxWidth - layoutParams.width);
                 maxOffsetAbs = (maxOffsetAbs >> 1);
                 if (position < -1) { // [-Infinity,-1)
@@ -183,13 +190,13 @@ public class MovieBannerComponent extends BaseComponent {
     public MovieBannerComponent(@NonNull BannerCallback callback) {
         mCtx = callback.getCtx();
         mCallback = callback;
+
         // init size
         mSizeConfig = new MovieSizeConfig(mCtx);
         mScreenWidth = mSizeConfig.getScreenWidth();
         mScreenHeight = mSizeConfig.getScreenHeight();
         mBannerMaxHeight = mSizeConfig.getMaxHeight();
         mBannerMinHeight = (int) (mBannerMaxHeight * DEFAULT_MIN_SCALE);
-
         mMainPageMaxHeight = mBannerMaxHeight;
         mEdgePageMaxHeight = (int) (mBannerMaxHeight * DEFAULT_MIN_SCALE);
         mPageMinHeight = mBannerMinHeight;
@@ -197,12 +204,18 @@ public class MovieBannerComponent extends BaseComponent {
         mMarginLRPX = mSizeConfig.getMarginLR();
         mBannerPageMaxWidth = (mScreenWidth - (mMarginLRPX << 1));
         mAspectRatio = mBannerPageMaxWidth * 1f / mMainPageMaxHeight * 1f;
+
         mBannerViewPager = callback.getBannerView();
 
     }
 
     public void onSizeChange(int height, @FloatRange(from = 0.0f, to = 1.0f) float progress) {
-        LogUtils.d(TAG, "onSizeChange,progress:" + progress + ",mBannerCardHeight:" + mBannerCardHeight);
+        if (LogUtils.DEBUG) {
+            LogUtils.d(TAG, "onSizeChange,progress:" + progress + ",mBannerCardHeight:" + mBannerCardHeight);
+        }
+        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) mBannerViewPager.getLayoutParams();
+        layoutParams.topMargin = (int) (progress * mSizeConfig.getTopMaxMargin());
+        layoutParams.bottomMargin = (int) ((1 - progress) * mSizeConfig.getBottomMaxMargin());
         mCurProgress = progress;
         mBannerCardHeight = (int) ((mBannerMaxHeight - mPageMinHeight) * mCurProgress + mPageMinHeight);
         // 主动调用transformer
@@ -215,7 +228,9 @@ public class MovieBannerComponent extends BaseComponent {
     private void invokeTransformer() {
         if (mScaleAnimTransformer != null) {
             final int scrollX = mBannerViewPager.getScrollX();
-            LogUtils.d(TAG, "invokeTransformer,scrollX:" + scrollX);
+            if (LogUtils.DEBUG) {
+                LogUtils.d(TAG, "invokeTransformer,scrollX:" + scrollX);
+            }
             final int childCount = mBannerViewPager.getChildCount();
             for (int i = 0; i < childCount; i++) {
                 final View child = mBannerViewPager.getChildAt(i);
@@ -286,20 +301,27 @@ public class MovieBannerComponent extends BaseComponent {
             public Object instantiateItem(View container, int position) {
                 View page = LayoutInflater.from(container.getContext()).inflate(R.layout.item_movie_banner, null);
                 ImageView image = page.findViewById(R.id.img);
+                TextView desc = page.findViewById(R.id.desc);
+                desc.setVisibility(LogUtils.DEBUG ? View.VISIBLE : View.GONE);
                 View innerContainer = page.findViewById(R.id.inner_container);
 
-                image.setScaleType(ImageView.ScaleType.FIT_XY); //  test
+                image.setScaleType(ImageView.ScaleType.FIT_XY);
 
+                // init width and height
                 RelativeLayout.LayoutParams layoutParams =
                         new RelativeLayout.LayoutParams((int) (mBannerCardHeight * mAspectRatio), mBannerCardHeight);
                 layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
                 innerContainer.setLayoutParams(layoutParams);
 
+                // display img
                 RequestOptions
                         options = new RequestOptions().error(R.drawable.img_load_failure)
-                        .bitmapTransform(new RoundedCorners(30));//图片圆角为30
+                        .bitmapTransform(new RoundedCorners(30));
                 Glide.with(image.getContext()).load(bannerList.get(position).getImgUrl()).apply(options).into(image);
+
+                // test code
                 page.setTag(position);
+
                 ((ViewPager) container).addView(page);
                 return page;
             }
@@ -319,7 +341,6 @@ public class MovieBannerComponent extends BaseComponent {
 
             @Override
             public void onPageSelected(int position) {
-
                 if (mCallback != null) {
                     mCallback.request();
                 }
