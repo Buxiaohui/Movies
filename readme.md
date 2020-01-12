@@ -31,11 +31,11 @@ Animation
 step-1:  
 ![](movies-banner-animation-step-1.png)
 
-step-1完成情况:  
-100%
-step-2完成情况:  
+step-1(80%工作量)完成情况:  
+100%  
+step-2(10%工作量)完成情况:  
 0%，未开始，基本原理与step-1的相同  
-step-3完成情况:  
+step-3(10%工作量)完成情况:  
 0%，未开始，基本原理与step-1的相同
 
 
